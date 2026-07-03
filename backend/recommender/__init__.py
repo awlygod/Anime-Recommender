@@ -1,0 +1,1 @@
+"""Recommendation engine package — content-based, preference-based, and combined strategies."""
