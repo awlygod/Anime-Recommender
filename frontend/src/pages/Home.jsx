@@ -4,10 +4,6 @@ import PreferenceFilters from "../components/PreferenceFilters";
 import ResultsGrid from "../components/ResultsGrid";
 import { getRecommendations } from "../api/client";
 
-/**
- * Main page — ties together search (content-based), filters (preference-based),
- * and the combined recommendation call.
- */
 export default function Home() {
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [preferences, setPreferences] = useState({ genres: [], type: "" });
@@ -20,7 +16,6 @@ export default function Home() {
       setError("Pick an anime or select at least one preference first.");
       return;
     }
-
     setError(null);
     setLoading(true);
     try {
@@ -41,24 +36,43 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      <h1>Anime Recommender</h1>
-      <p>Pick an anime you like, set preferences, or both — then get recommendations.</p>
+      <div className="top-bar">
+        <h1>AnimeMatch</h1>
+      </div>
 
-      <SearchBar
-        onSelect={setSelectedAnime}
-        selectedAnime={selectedAnime}
-        onClear={() => setSelectedAnime(null)}
-      />
+      <div className="content">
+        <div className="page-header">
+          <div>
+            <h2>Find your next anime</h2>
+            <p className="subtitle">Search a title, set preferences, or both</p>
+          </div>
+        </div>
 
-      <PreferenceFilters onChange={setPreferences} />
+        <SearchBar
+          onSelect={setSelectedAnime}
+          selectedAnime={selectedAnime}
+          onClear={() => setSelectedAnime(null)}
+        />
 
-      <button className="recommend-btn" onClick={handleGetRecommendations}>
-        Get recommendations
-      </button>
+        <PreferenceFilters onChange={setPreferences} />
 
-      {error && <p className="error-text">{error}</p>}
+        <div className="btn-row">
+          <button className="recommend-btn" onClick={handleGetRecommendations}>
+            Get recommendations
+          </button>
+        </div>
 
-      <ResultsGrid results={results} loading={loading} />
+        {error && <p className="error-text">{error}</p>}
+
+        {results.length === 0 && !loading ? (
+          <div className="empty-state">
+            <p className="main">No recommendations yet</p>
+            <p className="sub">Search an anime or select preferences above</p>
+          </div>
+        ) : (
+          <ResultsGrid results={results} loading={loading} />
+        )}
+      </div>
     </div>
   );
 }
