@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: anime-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: anime_user
+      POSTGRES_PASSWORD: anime_pass
+      POSTGRES_DB: anime_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - anime-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anime_user -d anime_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: anime-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://anime_user:anime_pass@db:5432/anime_db
+      FRONTEND_ORIGIN: http://localhost:3000
+    volumes:
+      - ./data:/app/../data
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - anime-net
+    command: >
+      sh -c "echo 'Open frontend: http://localhost:3000' &&
+             echo 'Backend health: http://localhost:8000/health' &&
+             python seed.py &&
+             uvicorn main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build: ./frontend
+    container_name: anime-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - anime-net
+
+networks:
+  anime-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
