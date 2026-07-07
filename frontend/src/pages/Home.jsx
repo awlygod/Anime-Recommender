@@ -4,6 +4,12 @@ import PreferenceFilters from "../components/PreferenceFilters";
 import ResultsGrid from "../components/ResultsGrid";
 import { getRecommendations } from "../api/client";
 
+/**
+ * Main page of the application.
+ *
+ * It manages the user's selections, requests recommendations from the
+ * backend, and displays the returned results.
+ */
 export default function Home() {
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [preferences, setPreferences] = useState({ genres: [], type: "" });
@@ -11,13 +17,21 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleGetRecommendations = async () => {
-    if (!selectedAnime && preferences.genres.length === 0 && !preferences.type) {
+  async function handleGetRecommendations() {
+    // Require at least one input before requesting recommendations.
+    const hasNoInput =
+      !selectedAnime &&
+      preferences.genres.length === 0 &&
+      !preferences.type;
+
+    if (hasNoInput) {
       setError("Pick an anime or select at least one preference first.");
       return;
     }
+
     setError(null);
     setLoading(true);
+
     try {
       const data = await getRecommendations({
         anime_id: selectedAnime?.id,
@@ -25,14 +39,15 @@ export default function Home() {
         type: preferences.type,
         top_n: 10,
       });
+
       setResults(data);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       setError("Something went wrong fetching recommendations.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="home-page">
@@ -44,7 +59,9 @@ export default function Home() {
         <div className="page-header">
           <div>
             <h2>Find your next anime</h2>
-            <p className="subtitle">Search a title, set preferences, or both</p>
+            <p className="subtitle">
+              Search a title, set preferences, or both
+            </p>
           </div>
         </div>
 
@@ -57,7 +74,10 @@ export default function Home() {
         <PreferenceFilters onChange={setPreferences} />
 
         <div className="btn-row">
-          <button className="recommend-btn" onClick={handleGetRecommendations}>
+          <button
+            className="recommend-btn"
+            onClick={handleGetRecommendations}
+          >
             Get recommendations
           </button>
         </div>
@@ -67,10 +87,15 @@ export default function Home() {
         {results.length === 0 && !loading ? (
           <div className="empty-state">
             <p className="main">No recommendations yet</p>
-            <p className="sub">Search an anime or select preferences above</p>
+            <p className="sub">
+              Search an anime or select preferences above
+            </p>
           </div>
         ) : (
-          <ResultsGrid results={results} loading={loading} />
+          <ResultsGrid
+            results={results}
+            loading={loading}
+          />
         )}
       </div>
     </div>

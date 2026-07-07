@@ -1,87 +1,114 @@
-# Anime Recommender
+# AnimeMatch ( Anime Recommendation System)
 
-Anime Recommender is a full stack web application that helps users discover new anime based on what they already enjoy and the preferences they choose. The application combines content similarity with user preferences to generate recommendations that feel more accurate and relevant.
+## Project Overview
 
-The project is built using React for the frontend, FastAPI for the backend, PostgreSQL for storing the data, and Docker to run the complete application in separate containers.
+Anime Recommender is a full stack web application that helps users discover new anime based on titles they already enjoy and preferences they choose. The application combines content based matching with preference based filtering to generate recommendations that feel more personal than a simple genre list.
 
-# Why I Built This Project
+The system is built using React for the frontend, FastAPI for the backend, and PostgreSQL for the database. The entire application runs through Docker, with each part of the system running in its own container.
 
-Finding a good anime to watch can be difficult because thousands of titles are available across many different genres and formats. Most recommendation systems either suggest anime that are similar to one title or simply filter anime based on genres.
+## Why I Chose This Project
 
-I wanted to build a system that combines both approaches. A user can choose an anime they already like, select genres or formats they prefer, or use both together. This creates recommendations that are much more personalized while also giving me practical experience working with recommendation systems, REST APIs, Docker, databases, and full stack development.
+Finding a good anime to watch can be difficult because thousands of titles exist across many genres, formats, and eras. Most recommendation systems take one of two approaches. Either they suggest titles similar to something you already like, or they let you filter by genre and type without considering similarity at all.
 
-# System Architecture
+I wanted to build something that does both at once. A user can pick an anime they already enjoy, set genre and type preferences, or combine the two together. Building this also gave me hands on experience with recommendation logic, REST API design, containerization with Docker, and connecting a real database to a full stack application.
 
-The application is divided into three separate services that communicate with each other through a Docker network.
+## What Makes This Project Special
 
-### Frontend
+Instead of relying on a single matching method, this application supports three modes of recommendation depending on what the user provides.
 
-The frontend is developed using React and Vite. Once built, it is served using Nginx on port 3000. Users interact with the application through this interface.
+If a user selects only an anime, the system finds other anime with similar genres and synopsis using text similarity.
+
+If a user selects only preferences such as genre or type, the system filters and ranks anime according to those choices.
+
+If both are provided, the application first finds anime similar to the selected title and then narrows that list down using the chosen preferences, producing results that are both similar and relevant to what the user actually wants.
+
+## Features
+
+Live anime search with autocomplete.
+
+Genre based filtering.
+
+Type based filtering across TV, Movie, OVA, and other formats.
+
+Content based recommendations using TF IDF and cosine similarity.
+
+Preference based recommendations.
+
+A combined recommendation mode that merges both techniques.
+
+Fully containerized application using Docker.
+
+Clean, minimal, dark themed user interface.
+
+## Technology Stack
 
 ### Backend
 
-The backend is built with FastAPI and runs on port 8000. It receives requests from the frontend, searches the database, generates recommendations, and returns the results.
+Python
+
+FastAPI
+
+SQLAlchemy
+
+Pandas
+
+Scikit Learn
+
+### Frontend
+
+React
+
+Vite
+
+Nginx
 
 ### Database
 
-The application stores all anime information inside a PostgreSQL database running on port 5432.
+PostgreSQL
 
-The frontend never communicates directly with the database. Every request first goes to the backend, making the application more secure and easier to maintain.
+### DevOps
 
-When the application starts for the first time, the backend automatically loads the dataset into PostgreSQL and builds the recommendation model in memory.
+Docker
 
-# Design Decisions
+Docker Compose
 
-## Combining Two Recommendation Methods
+### Development Tools
 
-The application supports both content based recommendations and preference based recommendations.
+Visual Studio Code
 
-If a user selects only an anime, the system finds other anime with similar descriptions and content.
+Git
 
-If a user selects only preferences such as genres or type, the system recommends anime that satisfy those filters.
+GitHub
 
-If both are provided, the application combines the two approaches and produces recommendations that are similar while also matching the user's preferences.
+## Project Architecture
 
-## TF IDF and Cosine Similarity
+```
+                    User
+                      |
+                      v
+               React Frontend
+                      |
+             REST API Requests
+                      |
+                      v
+              FastAPI Backend
+                      |
+            Recommendation Engine
+                      |
+                      v
+              PostgreSQL Database
+```
 
-The recommendation engine uses TF IDF to convert anime descriptions into numerical values. Cosine similarity is then used to measure how closely two anime are related.
+The frontend never communicates with the database directly. Every request goes through the backend first, which keeps the system organized and easier to maintain.
 
-Instead of storing similarity values for every possible pair of anime, similarities are calculated only when needed. This keeps memory usage low while still providing fast recommendations.
+## Project Structure
 
-## Automatic Database Seeding
-
-The backend checks whether the database already contains data before importing the dataset.
-
-This allows the application to restart safely without inserting duplicate records.
-
-## Separate Frontend and Backend
-
-The frontend only communicates with the backend through REST APIs.
-
-Because of this separation, each service can be developed, tested, and deployed independently.
-
-## PostgreSQL Database
-
-The dataset is imported into PostgreSQL instead of reading directly from the CSV file for every request.
-
-Using a database provides much faster searching and makes the application behave like a real production system.
-
-# Technology Stack
-
-| Component | Technology |
-| ---------- | ---------- |
-| Frontend | React, JavaScript, Vite, Nginx |
-| Backend | FastAPI, SQLAlchemy, Pandas, Scikit Learn |
-| Database | PostgreSQL |
-| Containerization | Docker, Docker Compose |
-
-# Project Structure
-
-```text
+```
 anime-recommender/
-
 ├── docker-compose.yml
 ├── README.md
+├── INSTALL.md
+├── USAGE.md
 ├── data/
 │   └── anime_dataset_2023.csv
 ├── backend/
@@ -111,91 +138,236 @@ anime-recommender/
             └── Home.jsx
 ```
 
-# Dataset
+## How To Install
 
-This project uses the Anime Dataset 2023 available on Kaggle.
+Full setup instructions, prerequisites, and troubleshooting for getting the project running are in [INSTALL.md](./INSTALL.md).
 
-The dataset contains approximately twenty five thousand anime entries along with information such as title, genres, synopsis, type, number of episodes, score, and popularity.
+In short.
 
-The CSV file is placed inside the data folder. During the first startup, the backend automatically imports the data into PostgreSQL.
+```bash
+git clone https://github.com/awlygod/anime-recommender.git
+cd anime-recommender
+docker compose up --build
+```
 
-# Installation Files
+Then open http://localhost:3000.
+
+## Application URLs
+
+Frontend
+
+```
+http://localhost:3000
+```
+
+Backend API
+
+```
+http://localhost:8000
+```
+
+Swagger Documentation
+
+```
+http://localhost:8000/docs
+```
+
+## Running Without Docker
+
+### Backend
+
+Create a virtual environment.
+
+```bash
+python -m venv venv
+```
+
+Activate it on Windows.
+
+```bash
+venv\Scripts\activate
+```
+
+Activate it on Linux or macOS.
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies.
+
+```bash
+pip install -r requirements.txt
+```
+
+Place the Kaggle dataset inside the data folder, then seed the database.
+
+```bash
+python seed.py
+```
+
+Run the backend.
+
+```bash
+uvicorn main:app --reload
+```
+
+### Frontend
+
+Install dependencies.
+
+```bash
+npm install
+```
+
+Run React.
+
+```bash
+npm run dev
+```
+
+## Database Setup
+
+The application uses PostgreSQL.
+
+When Docker Compose is executed, the following happens automatically.
+
+The PostgreSQL container starts.
+
+The database and table are created.
+
+The backend checks whether the database already contains data.
+
+If the database is empty, the Kaggle dataset is imported.
+
+If data already exists, seeding is skipped so restarting the application never creates duplicate records.
+
+No manual database setup is required.
+
+## How To Use
+
+A full walkthrough of the interface, what each field does, and a worked example of a recommendation request is in [USAGE.md](./USAGE.md).
+
+In short, search for an anime you like, set genre and type preferences, or do both, then click Get recommendations to see a ranked list of matching anime.
+
+## How the Recommendation Engine Works
+
+The user submits an anime, a set of preferences, or both.
+
+FastAPI receives the request and validates it.
+
+If an anime is provided, the content based engine calculates cosine similarity between that anime and every other anime in the dataset using a TF IDF representation of genres and synopsis.
+
+If preferences are provided, the preference based engine filters and ranks anime by genre, type, and score.
+
+If both are provided, the content based results are filtered further using the given preferences.
+
+The final ranked list is returned as JSON.
+
+React renders the results as a grid of anime cards.
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+| ------- | -------- | ----------- |
+| GET | /animes?q=\<search\>&limit=\<number\> | Search anime by name |
+| GET | /animes/{id} | Get information about one anime |
+| POST | /recommend | Generate recommendations |
+| GET | /health | Check whether the backend is running |
+
+## Dataset Preparation
+
+This project uses the Anime Dataset 2023 available on Kaggle. The dataset contains approximately twenty five thousand anime entries along with information such as title, genres, synopsis, type, number of episodes, score, and popularity.
+
+Before seeding, missing or invalid values in fields such as score, episodes, and popularity are handled so they do not break the recommendation logic. Text fields used for similarity, namely genres and synopsis, are combined and cleaned before being passed into the TF IDF vectorizer.
+
+The cleaned data is imported into PostgreSQL automatically the first time the backend starts.
+
+## Dataset Source
+
+Dataset used, Anime Dataset 2023.
+
+Source.
+
+https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset
+
+## Installation Files
 
 The entire project can be started without any manual configuration.
 
-The `docker-compose.yml` file creates and connects all services.
+The docker-compose.yml file creates and connects all three services on a custom Docker network.
 
 The backend Dockerfile installs the Python environment and required packages.
 
 The frontend Dockerfile builds the React application and serves it through Nginx.
 
-The `seed.py` file automatically imports the dataset into PostgreSQL whenever the database is empty.
+The seed.py file automatically imports the dataset into PostgreSQL whenever the database is empty.
 
-# Installation
+See [INSTALL.md](./INSTALL.md) for the full setup walkthrough.
 
-Before starting, make sure Docker Desktop is installed and running.
+## Docker Architecture
+
+The project consists of three independent containers connected through a custom Docker network.
+
+Frontend, built with React and served through Nginx.
+
+Backend, built with FastAPI and containing the recommendation engine.
+
+Database, running PostgreSQL.
+
+Docker Compose creates the network automatically and allows the three containers to communicate without any manual setup.
+
+## Screenshots
+
+### User Request Form
+![Request Form](User-Form.png)
+
+### Combined Recommendations
+![Combined](Combined.png)
+
+### Content Based Recommendations
+![Content-Based](conten-based.png)
+
+### Preference Based Recommendations
+![Preference Based](Preference-based.png)
+
+## Troubleshooting
+
+### Docker will not start
 
 ```bash
-git clone https://github.com/<your-username>/anime-recommender.git
-
-cd anime-recommender
-
+docker compose down
 docker compose up --build
 ```
 
-During the first startup, Docker performs the following steps.
+### Port already in use
 
-1. Starts the PostgreSQL database.
+Change the affected port inside docker-compose.yml, or stop whatever else is using that port.
 
-2. Builds the FastAPI backend.
+### Database connection error
 
-3. Imports the Kaggle dataset into PostgreSQL.
+Confirm the following.
 
-4. Creates the recommendation model.
+The PostgreSQL container is running.
 
-5. Builds the React frontend.
+The Docker network was created successfully.
 
-6. Serves the frontend using Nginx.
+The database credentials in docker-compose.yml match what the backend expects.
 
-Once everything is running, open the application by visiting:
+The backend only starts after PostgreSQL has passed its health check.
 
-http://localhost:3000
+More detailed troubleshooting steps are in [INSTALL.md](./INSTALL.md).
 
-# Using the Application
+## Author
 
-Open the application in your browser.
+Suraj Tripathi
 
-Search for an anime that you already enjoy and choose it from the search results if you want recommendations based on similar content.
+GitHub:  https://github.com/awlygod
 
-You can also select one or more genres together with an anime type such as TV, Movie, or OVA if you want recommendations based on your preferences.
+## Acknowledgements
 
-You may also combine both options. The application will first find anime that are similar to your selected title and then rank them according to your chosen preferences.
+This project was developed as part of a technical recruitment assessment.
 
-After clicking the recommendation button, the application displays a ranked list of anime together with posters, genres, scores, and similarity percentages.
+Open source technologies used, FastAPI, React, Docker, PostgreSQL, SQLAlchemy, Pydantic, Vite, Scikit Learn.
 
-# API Endpoints
-
-| Method | Endpoint | Description |
-| ------- | -------- | ----------- |
-| GET | `/animes?q=<search>&limit=<number>` | Search anime by name |
-| GET | `/animes/{id}` | Get information about one anime |
-| POST | `/recommend` | Generate recommendations |
-| GET | `/health` | Check whether the backend is running |
-
-# Features
-
-1. Live anime search with autocomplete.
-
-2. Genre based filtering.
-
-3. Type based filtering.
-
-4. Content based recommendations using TF IDF and cosine similarity.
-
-5. Preference based recommendations.
-
-6. Combined recommendation system that merges both techniques.
-
-7. Fully containerized application using Docker.
-
-8. Clean and responsive user interface.
+Thanks to Kaggle and the dataset author for making the Anime Dataset 2023 publicly available.

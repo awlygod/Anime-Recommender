@@ -1,12 +1,21 @@
 import AnimeCard from "./AnimeCard";
 
 /**
- * Renders a grid of AnimeCard results, or an empty/loading state.
+ * Shows the actual recommendation results as a grid of cards. This one
+ * component handles all three states the results area can be in, still
+ * loading, no results yet, or a real list to show.
  */
 export default function ResultsGrid({ results, loading }) {
-  if (loading) return <p className="status-text">Loading recommendations...</p>;
+  if (loading) {
+    return <p className="status-text">Loading recommendations, please wait.</p>;
+  }
+
   if (!results || results.length === 0) {
-    return <p className="status-text">No results yet — search an anime or pick preferences above.</p>;
+    return (
+      <p className="status-text">
+        No results yet. Search an anime or pick some preferences above.
+      </p>
+    );
   }
 
   return (

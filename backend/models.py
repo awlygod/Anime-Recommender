@@ -1,11 +1,23 @@
-"""SQLAlchemy ORM models."""
+"""
+Database models used by the application.
 
-from sqlalchemy import Column, Integer, String, Float, Text
+The project currently uses a single table to store anime information
+loaded from the dataset.
+"""
+
+from sqlalchemy import Column, Float, Integer, String, Text
+
 from database import Base
 
 
 class Anime(Base):
-    """Represents a single anime entry sourced from the Kaggle dataset."""
+    """
+    Represents an anime stored in the database.
+
+    Each instance of this model corresponds to a single row in the
+    anime table and contains the information used throughout the
+    recommendation system.
+    """
 
     __tablename__ = "anime"
 
@@ -14,7 +26,11 @@ class Anime(Base):
     genres = Column(String, default="")
     synopsis = Column(Text, default="")
     type = Column(String, default="")
+
+    # Stored as a string because some entries in the dataset use
+    # "UNKNOWN" instead of a numeric episode count.
     episodes = Column(String, default="")
+
     score = Column(Float, default=0.0)
     popularity = Column(Integer, default=0)
     image_url = Column(String, default="")

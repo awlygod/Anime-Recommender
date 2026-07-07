@@ -1,11 +1,11 @@
 """
-Combines content-based and preference-based recommendations.
+This combines content-based and preference-based recommendations.
 
 Logic:
 - anime_id only          -> pure content-based similarity
-- genres/type only        -> pure preference-based filtering
-- both provided           -> get content-based candidates, then boost/filter
-                              by whether they also match the given genres/type
+- genres/type only       -> pure preference-based filtering
+- both provided          -> get content-based candidates, then boost/filter
+                            by whether they also match the given genres/type
 """
 
 from sqlalchemy.orm import Session
