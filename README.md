@@ -145,7 +145,7 @@ Full setup instructions, prerequisites, and troubleshooting for getting the proj
 In short.
 
 ```bash
-git clone https://github.com/awlygod/anime-recommender.git
+git clone https://github.com/awlygod/Anime-Recommender.git
 cd anime-recommender
 docker compose up --build
 ```

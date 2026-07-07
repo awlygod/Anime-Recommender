@@ -20,7 +20,7 @@ docker compose version
 Clone the repository.
 
 ```bash
-git clone https://github.com/awlygod/anime-recommender.git
+git clone https://github.com/awlygod/Anime-Recommender.git
 cd anime-recommender
 ```
 
