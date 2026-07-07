@@ -320,16 +320,16 @@ Docker Compose creates the network automatically and allows the three containers
 ## Screenshots
 
 ### User Request Form
-![Request Form](User-Form.png)
+![Request Form](screenshots/User-Form.png)
 
 ### Combined Recommendations
-![Combined](Combined.png)
+![Combined](screenshots/Combined.png)
 
 ### Content Based Recommendations
-![Content-Based](conten-based.png)
+![Content-Based](screenshots/conten-based.png)
 
 ### Preference Based Recommendations
-![Preference Based](Preference-based.png)
+![Preference Based](screenshots/Preference-based.png)
 
 ## Troubleshooting
 
