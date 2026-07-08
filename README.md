@@ -337,3 +337,15 @@ This project was developed as part of a technical recruitment assessment.
 Open source technologies used, FastAPI, React, Docker, PostgreSQL, SQLAlchemy, Pydantic, Vite, Scikit Learn.
 
 Thanks to Kaggle and the dataset author for making the Anime Dataset 2023 publicly available.
+
+## Declaration
+
+To be fully transparent, I used Claude/AI to help speed up parts of this project.
+
+Debugging environment issues: diagnosing a `.gitignore` encoding problem on Windows that was silently preventing `.env` from being ignored, and working through a CORS mismatch caused by Vite's default dev port differing from the Docker port.
+
+Data preprocessing: writing the fallback logic in `seed.py` that handles the literal `UNKNOWN` values present in the Kaggle dataset's score, episodes, and popularity fields, so they don't break the seeding process or the recommendation engine.
+
+Proofreading: Checking grammar and formatting structure of the technical docs and comments.
+
+Aside from that, the recommendation logic itself, content based matching using TF IDF and cosine similarity, preference based filtering, and the combined mode that merges both, the database schema, the React components, and the Docker network structure were built and understood by me.
