@@ -72,13 +72,13 @@ By combining these, AnimeMatch generates recommendations tailored to what you ac
 
 Once recommendations are generated, each card in the results grid shows.
 
-The anime's poster image.
+* The anime's poster image.
 
-Its title and genres.
+* Its title and genres.
 
-Its score, or N/A if the original dataset did not have one recorded.
+* Its score, or N/A if the original dataset did not have one recorded.
 
-A match percentage, reflecting either similarity to your selected anime or a normalized version of the anime's own score, depending on which mode produced that result.
+* A match percentage, reflecting either similarity to your selected     anime or a normalized version of the anime's own score, depending on which mode produced that result.
 
 You can scroll through all returned results without submitting the form again, and you can adjust your search or preferences and click Get recommendations again at any time to get a new set of results.
 

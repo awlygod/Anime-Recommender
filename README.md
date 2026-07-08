@@ -218,7 +218,7 @@ In short, search for an anime you like, set genre and type preferences, or do bo
 
 The recommendation engine supports three modes depending on what the user provides, and the backend decides which one to run without the frontend needing to specify a mode explicitly.
 
-![Recommendation Engine Architecture](archit.png)
+![Recommendation Engine Architecture](screenshots/archit.png)
 
 ### Content Based Matching
 
@@ -242,7 +242,7 @@ Full request and response examples for every endpoint are in [API.md](./API.md).
 
 The full request flow, end to end, looks like this.
 
-![Data Flow Diagram](flow.png)
+![Data Flow Diagram](screenshots/flow.png)
 
 
 
