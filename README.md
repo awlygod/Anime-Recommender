@@ -24,76 +24,79 @@ If both are provided, the application first finds anime similar to the selected 
 
 ## Features
 
-Live anime search with autocomplete.
+* Live anime search with autocomplete.
 
-Genre based filtering.
+* Genre based filtering.
 
-Type based filtering across TV, Movie, OVA, and other formats.
+* Type based filtering across TV, Movie, OVA, and other formats.
 
-Content based recommendations using TF IDF and cosine similarity.
+* Content based recommendations using TF IDF and cosine similarity.
 
-Preference based recommendations.
+* Preference based recommendations.
 
-A combined recommendation mode that merges both techniques.
+* A combined recommendation mode that merges both techniques.
 
-Fully containerized application using Docker.
+* Fully containerized application using Docker.
 
-Clean, minimal, dark themed user interface.
+* Clean, minimal, dark themed user interface.
 
 ## Technology Stack
 
 ### Backend
 
-Python
+* Python
 
-FastAPI
+* FastAPI
 
-SQLAlchemy
+* SQLAlchemy
 
-Pandas
+* Pandas
 
-Scikit Learn
+* Scikit Learn
 
 ### Frontend
 
-React
+* React
 
-Vite
+* Vite
 
-Nginx
+* Nginx
 
 ### Database
 
-PostgreSQL
+* PostgreSQL
 
 ### DevOps
 
-Docker
+* Docker
 
-Docker Compose
+* Docker Compose
 
 ### Development Tools
 
-Visual Studio Code
+* Visual Studio Code
 
-Git
+* Git
 
-GitHub
+* GitHub
 
 ## Project Architecture
 
 ```
                     User
                       |
+                      |
                       v
                React Frontend
                       |
              REST API Requests
                       |
+                      |
                       v
               FastAPI Backend
                       |
             Recommendation Engine
+                      |
                       |
                       v
               PostgreSQL Database
@@ -101,16 +104,29 @@ GitHub
 
 The frontend never communicates with the database directly. Every request goes through the backend first, which keeps the system organized and easier to maintain.
 
+## Documentation
+
+Detailed documentation has been split into separate files for easier navigation.
+
+[Installation Guide](./INSTALL.md)
+
+[Usage Guide](./USAGE.md)
+
+[API Documentation](./API.md)
+
 ## Project Structure
 
 ```
-anime-recommender/
+Anime-Recommender/
 ├── docker-compose.yml
 ├── README.md
 ├── INSTALL.md
 ├── USAGE.md
+├── API.md
 ├── data/
 │   └── anime_dataset_2023.csv
+├── screenshots/
+│   └── (screenshot images referenced in the README)
 ├── backend/
 │   ├── Dockerfile
 │   ├── requirements.txt
@@ -146,7 +162,7 @@ In short.
 
 ```bash
 git clone https://github.com/awlygod/Anime-Recommender.git
-cd anime-recommender
+cd Anime-Recommender
 docker compose up --build
 ```
 
@@ -172,59 +188,7 @@ Swagger Documentation
 http://localhost:8000/docs
 ```
 
-## Running Without Docker
-
-### Backend
-
-Create a virtual environment.
-
-```bash
-python -m venv venv
-```
-
-Activate it on Windows.
-
-```bash
-venv\Scripts\activate
-```
-
-Activate it on Linux or macOS.
-
-```bash
-source venv/bin/activate
-```
-
-Install dependencies.
-
-```bash
-pip install -r requirements.txt
-```
-
-Place the Kaggle dataset inside the data folder, then seed the database.
-
-```bash
-python seed.py
-```
-
-Run the backend.
-
-```bash
-uvicorn main:app --reload
-```
-
-### Frontend
-
-Install dependencies.
-
-```bash
-npm install
-```
-
-Run React.
-
-```bash
-npm run dev
-```
+Full manual setup steps for running without Docker are in [INSTALL.md](./INSTALL.md).
 
 ## Database Setup
 
@@ -232,17 +196,17 @@ The application uses PostgreSQL.
 
 When Docker Compose is executed, the following happens automatically.
 
-The PostgreSQL container starts.
+- The PostgreSQL container starts.
 
-The database and table are created.
+- The database and table are created.
 
-The backend checks whether the database already contains data.
+- The backend checks whether the database already contains data.
 
-If the database is empty, the Kaggle dataset is imported.
+- If the database is empty, the Kaggle dataset is imported.
 
-If data already exists, seeding is skipped so restarting the application never creates duplicate records.
+- If data already exists, seeding is skipped so restarting the application never creates duplicate records.
 
-No manual database setup is required.
+- No manual database setup is required.
 
 ## How To Use
 
@@ -250,21 +214,37 @@ A full walkthrough of the interface, what each field does, and a worked example 
 
 In short, search for an anime you like, set genre and type preferences, or do both, then click Get recommendations to see a ranked list of matching anime.
 
-## How the Recommendation Engine Works
+## Recommendation Engine Architecture
 
-The user submits an anime, a set of preferences, or both.
+The recommendation engine supports three modes depending on what the user provides, and the backend decides which one to run without the frontend needing to specify a mode explicitly.
 
-FastAPI receives the request and validates it.
+![Recommendation Engine Architecture](archit.png)
 
-If an anime is provided, the content based engine calculates cosine similarity between that anime and every other anime in the dataset using a TF IDF representation of genres and synopsis.
+### Content Based Matching
 
-If preferences are provided, the preference based engine filters and ranks anime by genre, type, and score.
+When a user selects a specific anime, the engine converts that anime's combined genres and synopsis text into a TF IDF vector, then computes cosine similarity between that vector and every other anime's vector in the dataset. The anime with the highest similarity scores, excluding itself, are returned as the closest matches.
 
-If both are provided, the content based results are filtered further using the given preferences.
+This is computed on demand per request rather than precomputed for every possible pair of anime ahead of time, since storing a full similarity matrix for roughly twenty five thousand anime would use a large amount of memory for something only a fraction of which ever actually gets used in a given session.
 
-The final ranked list is returned as JSON.
+### Preference Based Matching
 
-React renders the results as a grid of anime cards.
+When a user selects genres and or a type without picking a specific anime, the engine filters the anime table down to rows matching those criteria using a case insensitive genre match and an exact type match, then ranks the results by score, highest first.
+
+### Combined Matching
+
+When a user provides both an anime and preferences, the engine first pulls a wider pool of content based candidates than it normally would, since narrowing that pool down by genre and type afterward will reduce it further. It then filters that pool by the given genres and type, and ranks whatever remains by similarity score. This produces results that are both textually similar to the chosen anime and aligned with the user's stated preferences.
+
+The user submits an anime, a set of preferences, or both. FastAPI receives the request and validates it. Depending on which fields were provided, one of the three strategies above runs, and the final ranked list is returned as JSON. React renders the results as a grid of anime cards.
+
+Full request and response examples for every endpoint are in [API.md](./API.md).
+
+## Data Flow
+
+The full request flow, end to end, looks like this.
+
+![Data Flow Diagram](flow.png)
+
+
 
 ## API Endpoints
 
@@ -275,13 +255,24 @@ React renders the results as a grid of anime cards.
 | POST | /recommend | Generate recommendations |
 | GET | /health | Check whether the backend is running |
 
+Full request and response examples for every endpoint are in [API.md](./API.md).
+
 ## Dataset Preparation
 
-This project uses the Anime Dataset 2023 available on Kaggle. The dataset contains approximately twenty five thousand anime entries along with information such as title, genres, synopsis, type, number of episodes, score, and popularity.
+This project uses the Anime Dataset 2023 from Kaggle, containing around twenty five thousand anime entries with details such as title, genres, synopsis, type, episodes, score, and popularity.
 
-Before seeding, missing or invalid values in fields such as score, episodes, and popularity are handled so they do not break the recommendation logic. Text fields used for similarity, namely genres and synopsis, are combined and cleaned before being passed into the TF IDF vectorizer.
+Before inserting the data, `seed.py` performs several preprocessing steps.
 
-The cleaned data is imported into PostgreSQL automatically the first time the backend starts.
+Missing genres and synopsis values are replaced with empty strings since they are required for the TF IDF vectorizer and cannot be null.
+
+The score and popularity columns sometimes contain the text `UNKNOWN` instead of numbers. A helper function safely converts these values and falls back to `0` when conversion fails, which is why some anime appear with a score of `N/A` in the application.
+
+The episodes field is stored as a string because it can also contain `UNKNOWN`, avoiding unnecessary conversion issues.
+
+After cleaning, the dataset is inserted into a PostgreSQL table using SQLAlchemy bulk inserts for better performance. Before importing, the script checks whether data already exists and skips the process if the table is already populated, preventing duplicate records.
+
+The cleaned dataset is imported automatically the first time the backend starts.
+
 
 ## Dataset Source
 
@@ -295,13 +286,13 @@ https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset
 
 The entire project can be started without any manual configuration.
 
-The docker-compose.yml file creates and connects all three services on a custom Docker network.
+* The docker-compose.yml file creates and connects all three services on a custom Docker network.
 
-The backend Dockerfile installs the Python environment and required packages.
+* The backend Dockerfile installs the Python environment and required packages.
 
-The frontend Dockerfile builds the React application and serves it through Nginx.
+* The frontend Dockerfile builds the React application and serves it through Nginx.
 
-The seed.py file automatically imports the dataset into PostgreSQL whenever the database is empty.
+* The seed.py file automatically imports the dataset into PostgreSQL whenever the database is empty.
 
 See [INSTALL.md](./INSTALL.md) for the full setup walkthrough.
 
@@ -309,11 +300,11 @@ See [INSTALL.md](./INSTALL.md) for the full setup walkthrough.
 
 The project consists of three independent containers connected through a custom Docker network.
 
-Frontend, built with React and served through Nginx.
+Frontend : built with React and served through Nginx.
 
-Backend, built with FastAPI and containing the recommendation engine.
+Backend  : built with FastAPI and containing the recommendation engine.
 
-Database, running PostgreSQL.
+Database : running PostgreSQL.
 
 Docker Compose creates the network automatically and allows the three containers to communicate without any manual setup.
 
@@ -331,32 +322,7 @@ Docker Compose creates the network automatically and allows the three containers
 ### Preference Based Recommendations
 ![Preference Based](screenshots/Preference-based.png)
 
-## Troubleshooting
-
-### Docker will not start
-
-```bash
-docker compose down
-docker compose up --build
-```
-
-### Port already in use
-
-Change the affected port inside docker-compose.yml, or stop whatever else is using that port.
-
-### Database connection error
-
-Confirm the following.
-
-The PostgreSQL container is running.
-
-The Docker network was created successfully.
-
-The database credentials in docker-compose.yml match what the backend expects.
-
-The backend only starts after PostgreSQL has passed its health check.
-
-More detailed troubleshooting steps are in [INSTALL.md](./INSTALL.md).
+Running into an issue? Troubleshooting steps for common Docker and database problems are in [INSTALL.md](./INSTALL.md).
 
 ## Author
 

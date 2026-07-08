@@ -1,34 +1,109 @@
 # Usage Guide
 
-This guide explains how to use the AnimeMatch UI to find anime recommendations tailored to what you already like, what you prefer, or both.
+This guide explains how to use AnimeMatch to get anime recommendations based on what you already like, your preferences, or both.
 
-## How to Use the App
+## Getting Started
 
-Open the application. Make sure the Docker containers are running, then navigate to http://localhost:3000 in your web browser.
+Before using the application, ensure all services are running. If you have not installed the project yet, follow the [Installation Guide](./INSTALL.md).
 
-Choose how you want to search. There are three ways to get recommendations, and you can use any of them depending on what you already know you want.
+Open your browser and navigate to.
 
-* Search for an anime you already enjoy using the search bar at the top. As you type, matching titles appear in a dropdown. Selecting one tells the system to find anime similar to that title.
-* Set preferences using the genre chips and the type dropdown below the search bar. You can select as many genres as you like and optionally pick a type such as TV, Movie, or OVA.
-* Combine both by selecting an anime and also setting preferences. The system will first find anime similar to your selected title, then narrow that list down further using your chosen genres and type.
+```
+http://localhost:3000
+```
 
-Submit. Click the Get recommendations button to send your selection to the backend.
+## Getting Recommendations
 
-## Reading the Results
+1. Open the AnimeMatch application.
+2. Search for an anime you already enjoy using the search bar, and select it from the dropdown, or skip this if you only want preference based results.
+3. Select one or more genres and, optionally, a type such as TV, Movie, or OVA, using the filters below the search bar.
+4. Click the **Get recommendations** button.
+5. Wait for the recommendation engine to process your request.
+6. Browse the returned anime cards.
+7. Clear your selected anime at any time and start a new search if you want different results.
 
-The system returns a ranked grid of anime cards based on whichever mode was triggered by your input.
+## User Inputs
 
-* Poster and Title, the anime's cover image and name.
-* Genres, the genre tags associated with that anime.
-* Score, the anime's average rating from the dataset. Some entries show N/A where the original dataset did not have a recorded score.
-* Match Percentage, shown as a rounded number derived from the similarity or ranking score behind that result. For content based results this comes from cosine similarity against your selected anime. For preference only results this is a normalized version of the anime's own score, since there is no similarity being measured in that mode.
+The recommendation engine generates results based on the following information.
 
-## Worked Example
+| Input | Description |
+|-------|-------------|
+| Selected Anime | An anime you already like, used to find similar titles |
+| Genres | One or more genres to filter and rank results by |
+| Type | TV, Movie, OVA, ONA, or Special |
+| Result Count | Fixed at 10 results per request in the current UI |
 
-Let's assume you search for and select Naruto, and also select the Action genre with no type filter.
+You do not need to provide all of these. Providing just a selected anime, just genres and type, or a combination of both are all valid ways to use the app, and each one triggers a different mode in the recommendation engine.
 
-Expected behavior, the backend runs its combined mode. It first finds a wide pool of anime that are textually similar to Naruto based on genres and synopsis, things like Naruto: Shippuuden, Boruto, and various Naruto movies typically appear here. It then narrows that pool down to only the ones that also contain Action in their genre list, and finally ranks whatever remains by similarity score, highest first.
+## How Recommendations Are Generated
 
-You will see cards for closely related titles such as Naruto: Shippuuden and Boruto: Naruto Next Generations near the top of the results, each showing a match percentage reflecting how textually similar that title is to the one you searched for, alongside its genres and score.
+After clicking Get recommendations, the application follows the workflow below.
 
-If instead you had only set preferences, for example Action and Comedy with no anime selected, the results would look different. That mode does not measure similarity to any single title, it simply filters the full dataset down to anime containing those genres and ranks them by their own score, so you would see a broader mix of popular Action and Comedy titles rather than anime specifically related to one show.
+1. The React frontend sends whatever you selected to the FastAPI backend.
+2. FastAPI validates the incoming request using Pydantic.
+3. The backend checks what was provided, a selected anime, preferences, or both, and picks the matching strategy.
+4. If an anime was selected, the content based engine compares it against every other anime in the dataset using TF IDF and cosine similarity.
+5. If preferences were set, the preference based engine filters and ranks anime by genre, type, and score.
+6. If both were provided, the content based results are narrowed down further by the given preferences.
+7. The ranked results are returned to the frontend as JSON.
+8. The recommended anime are displayed as a grid of cards for you to browse.
+
+## Recommendation Criteria
+
+The recommendation engine considers different factors depending on the mode being used.
+
+For content based recommendations.
+
+Genre overlap with the selected anime.
+
+Synopsis text similarity with the selected anime.
+
+For preference based recommendations.
+
+Genre match against your selected genres.
+
+Type match against your selected type.
+
+Overall score, used to rank matching results.
+
+By combining these, AnimeMatch generates recommendations tailored to what you actually asked for instead of showing the same popular titles to every user.
+
+## Viewing the Results
+
+Once recommendations are generated, each card in the results grid shows.
+
+The anime's poster image.
+
+Its title and genres.
+
+Its score, or N/A if the original dataset did not have one recorded.
+
+A match percentage, reflecting either similarity to your selected anime or a normalized version of the anime's own score, depending on which mode produced that result.
+
+You can scroll through all returned results without submitting the form again, and you can adjust your search or preferences and click Get recommendations again at any time to get a new set of results.
+
+## Testing the Backend Directly
+
+The backend provides interactive API documentation through Swagger UI.
+
+Open.
+
+```
+http://localhost:8000/docs
+```
+
+Swagger UI allows you to test every API endpoint, search, recommend, and health, without using the frontend application at all. This is useful for confirming the recommendation logic is working correctly independent of the UI.
+
+Full endpoint details and example requests are documented in [API.md](./API.md).
+
+## Input Validation
+
+All incoming requests to the recommend endpoint are validated using Pydantic.
+
+Examples of validation include.
+
+Incorrect data types, for example sending genres as a plain string instead of a list.
+
+Malformed request bodies.
+
+If validation fails, the API returns a 422 response with details about which field caused the failure, rather than passing invalid data into the recommendation logic.
