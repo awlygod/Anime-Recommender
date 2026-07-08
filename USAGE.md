@@ -94,7 +94,7 @@ http://localhost:8000/docs
 
 Swagger UI allows you to test every API endpoint, search, recommend, and health, without using the frontend application at all. This is useful for confirming the recommendation logic is working correctly independent of the UI.
 
-Full endpoint details and example requests are documented in [API.md](./API.md).
+Full endpoint details and example requests are documented in [API.md](./docs/API.md).
 
 ## Input Validation
 

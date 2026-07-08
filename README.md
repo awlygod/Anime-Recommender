@@ -122,7 +122,7 @@ Detailed documentation has been split into separate files for easier navigation.
 
 [Project Background](./docs/Project_Background.md)
 
-[Data Preparation](./docs/Project_Background.md)
+[Data Preparation](./docs/DATA_PREPARATION.md)
 
 ## Project Structure
 
@@ -132,10 +132,10 @@ Anime-Recommender/
 ├── README.md
 ├── INSTALL.md
 ├── USAGE.md
-├── API.md
 ├── docs/
-│   ├── project_rationale.md
-│   └── data_preparation.md
+│   ├── API.md
+│   ├── Project_Background.md
+│   └── DATA_PREPARATION.md
 ├── data/
 │   └── anime_dataset_2023.csv
 ├── screenshots/
@@ -280,7 +280,7 @@ The full request flow, end to end, looks like this.
 | POST | /recommend | Generate recommendations |
 | GET | /health | Check whether the backend is running |
 
-Full request and response examples for every endpoint are in [API.md](./API.md).
+Full request and response examples for every endpoint are in [API.md](./docs/API.md).
 
 ## Dataset Preparation
 
@@ -344,7 +344,7 @@ Open source technologies used, FastAPI, React, Docker, PostgreSQL, SQLAlchemy, P
 
 Thanks to Kaggle and the dataset author for making the Anime Dataset 2023 publicly available.
 
-The reasoning behind why this project was chosen, and what makes its approach different from a typical single strategy recommender, is in [docs/project_rationale.md](./docs/Project_Background.md.md).
+The reasoning behind why this project was chosen, and what makes its approach different from a typical single strategy recommender, is in [docs/Project_Background.md](./docs/Project_Background.md).
 
 ## Declaration
 
