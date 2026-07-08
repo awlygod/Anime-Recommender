@@ -6,21 +6,27 @@ Anime Recommender is a full stack web application that helps users discover new 
 
 The system is built using React for the frontend, FastAPI for the backend, and PostgreSQL for the database. The entire application runs through Docker, with each part of the system running in its own container.
 
-## Why I Chose This Project
+## Table of Contents
 
-Finding a good anime to watch can be difficult because thousands of titles exist across many genres, formats, and eras. Most recommendation systems take one of two approaches. Either they suggest titles similar to something you already like, or they let you filter by genre and type without considering similarity at all.
-
-I wanted to build something that does both at once. A user can pick an anime they already enjoy, set genre and type preferences, or combine the two together. Building this also gave me hands on experience with recommendation logic, REST API design, containerization with Docker, and connecting a real database to a full stack application.
-
-## What Makes This Project Special
-
-Instead of relying on a single matching method, this application supports three modes of recommendation depending on what the user provides.
-
-If a user selects only an anime, the system finds other anime with similar genres and synopsis using text similarity.
-
-If a user selects only preferences such as genre or type, the system filters and ranks anime according to those choices.
-
-If both are provided, the application first finds anime similar to the selected title and then narrows that list down using the chosen preferences, producing results that are both similar and relevant to what the user actually wants.
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Project Architecture](#project-architecture)
+- [Documentation](#documentation)
+- [Project Structure](#project-structure)
+- [How To Install](#how-to-install)
+- [Application URLs](#application-urls)
+- [Database Setup](#database-setup)
+- [How To Use](#how-to-use)
+- [Recommendation Engine Architecture](#recommendation-engine-architecture)
+- [Data Flow](#data-flow)
+- [API Endpoints](#api-endpoints)
+- [Dataset Preparation](#dataset-preparation)
+- [Installation Files](#installation-files)
+- [Docker Architecture](#docker-architecture)
+- [Screenshots](#screenshots)
+- [Author](#author)
+- [Acknowledgements](#acknowledgements)
+- [Declaration](#declaration)
 
 ## Features
 
@@ -112,7 +118,11 @@ Detailed documentation has been split into separate files for easier navigation.
 
 [Usage Guide](./USAGE.md)
 
-[API Documentation](./API.md)
+[API Documentation](./docs/API.md)
+
+[Project Background](./docs/Project_Background.md)
+
+[Data Preparation](./docs/Project_Background.md)
 
 ## Project Structure
 
@@ -123,6 +133,9 @@ Anime-Recommender/
 ├── INSTALL.md
 ├── USAGE.md
 ├── API.md
+├── docs/
+│   ├── project_rationale.md
+│   └── data_preparation.md
 ├── data/
 │   └── anime_dataset_2023.csv
 ├── screenshots/
@@ -224,27 +237,39 @@ The recommendation engine supports three modes depending on what the user provid
 
 When a user selects a specific anime, the engine converts that anime's combined genres and synopsis text into a TF IDF vector, then computes cosine similarity between that vector and every other anime's vector in the dataset. The anime with the highest similarity scores, excluding itself, are returned as the closest matches.
 
+TF IDF weighs each word in the combined genres and synopsis text by how often it appears in that one anime versus how common it is across the whole dataset, so distinctive words carry more weight than common ones.
+
+```
+tfidf(term, anime) = tf(term, anime) x idf(term)
+
+idf(term) = log( N / (1 + number of anime containing term) )
+```
+
+Once every anime has a TF IDF vector, similarity between any two anime is measured as the cosine of the angle between their vectors, a value between 0 and 1, where 1 means identical text and 0 means no overlap at all.
+
+```
+cosine_similarity(A, B) = (A . B) / (||A|| x ||B||)
+```
+
 This is computed on demand per request rather than precomputed for every possible pair of anime ahead of time, since storing a full similarity matrix for roughly twenty five thousand anime would use a large amount of memory for something only a fraction of which ever actually gets used in a given session.
 
 ### Preference Based Matching
 
-When a user selects genres and or a type without picking a specific anime, the engine filters the anime table down to rows matching those criteria using a case insensitive genre match and an exact type match, then ranks the results by score, highest first.
+When a user selects genres and or a type without picking a specific anime, the engine filters the anime table down to rows matching those criteria using a case insensitive genre match and an exact type match, then ranks the results by score, highest first. There is no similarity calculation in this mode, it is a straightforward filter and sort.
 
 ### Combined Matching
 
-When a user provides both an anime and preferences, the engine first pulls a wider pool of content based candidates than it normally would, since narrowing that pool down by genre and type afterward will reduce it further. It then filters that pool by the given genres and type, and ranks whatever remains by similarity score. This produces results that are both textually similar to the chosen anime and aligned with the user's stated preferences.
+When a user provides both an anime and preferences, the engine first pulls a wider pool of content based candidates than it normally would, requesting `top_n x 5` results instead of `top_n`, since narrowing that pool down by genre and type afterward will reduce it further. It then filters that pool by the given genres and type, and ranks whatever remains by similarity score. This produces results that are both textually similar to the chosen anime and aligned with the user's stated preferences.
 
 The user submits an anime, a set of preferences, or both. FastAPI receives the request and validates it. Depending on which fields were provided, one of the three strategies above runs, and the final ranked list is returned as JSON. React renders the results as a grid of anime cards.
 
-Full request and response examples for every endpoint are in [API.md](./API.md).
+Full request and response examples for every endpoint are in [API.md](./docs/API.md).
 
 ## Data Flow
 
 The full request flow, end to end, looks like this.
 
 ![Data Flow Diagram](screenshots/flow.png)
-
-
 
 ## API Endpoints
 
@@ -259,28 +284,9 @@ Full request and response examples for every endpoint are in [API.md](./API.md).
 
 ## Dataset Preparation
 
-This project uses the Anime Dataset 2023 from Kaggle, containing around twenty five thousand anime entries with details such as title, genres, synopsis, type, episodes, score, and popularity.
+This project uses the Anime Dataset 2023 from Kaggle, containing around twenty five thousand anime entries with details such as title, genres, synopsis, type, episodes, score, and popularity. Before inserting the data, `seed.py` cleans missing text fields and handles the literal `UNKNOWN` placeholder values present in the score, episodes, and popularity columns.
 
-Before inserting the data, `seed.py` performs several preprocessing steps.
-
-Missing genres and synopsis values are replaced with empty strings since they are required for the TF IDF vectorizer and cannot be null.
-
-The score and popularity columns sometimes contain the text `UNKNOWN` instead of numbers. A helper function safely converts these values and falls back to `0` when conversion fails, which is why some anime appear with a score of `N/A` in the application.
-
-The episodes field is stored as a string because it can also contain `UNKNOWN`, avoiding unnecessary conversion issues.
-
-After cleaning, the dataset is inserted into a PostgreSQL table using SQLAlchemy bulk inserts for better performance. Before importing, the script checks whether data already exists and skips the process if the table is already populated, preventing duplicate records.
-
-The cleaned dataset is imported automatically the first time the backend starts.
-
-
-## Dataset Source
-
-Dataset used, Anime Dataset 2023.
-
-Source.
-
-https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset
+A full breakdown of every preprocessing step, and the reasoning behind each one, is in [docs/data_preparation.md](./docs/DATA_PREPARATION.md).
 
 ## Installation Files
 
@@ -338,6 +344,8 @@ Open source technologies used, FastAPI, React, Docker, PostgreSQL, SQLAlchemy, P
 
 Thanks to Kaggle and the dataset author for making the Anime Dataset 2023 publicly available.
 
+The reasoning behind why this project was chosen, and what makes its approach different from a typical single strategy recommender, is in [docs/project_rationale.md](./docs/Project_Background.md.md).
+
 ## Declaration
 
 To be fully transparent, I used Claude/AI to help speed up parts of this project.
@@ -348,4 +356,4 @@ Data preprocessing: writing the fallback logic in `seed.py` that handles the lit
 
 Proofreading: Checking grammar and formatting structure of the technical docs and comments.
 
-Aside from that, the recommendation logic itself, content based matching using TF IDF and cosine similarity, preference based filtering, and the combined mode that merges both, the database schema, the React components, and the Docker network structure were built and understood by me.
+Aside from that, the recommendation logic itself, the database schema, the React components, and the Docker network structure were built and understood by me.
