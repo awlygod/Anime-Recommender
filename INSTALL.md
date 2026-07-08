@@ -89,6 +89,13 @@ Install dependencies.
 pip install -r requirements.txt
 ```
 
+Since this project does not include a `.env.example` template, create a `.env` file inside `backend/` yourself with the following two variables before continuing.
+
+```
+DATABASE_URL=postgresql://anime_user:anime_pass@localhost:5432/anime_db
+FRONTEND_ORIGIN=http://localhost:5173
+```
+
 Place the Kaggle dataset inside the data folder, then seed the database. This step requires a PostgreSQL instance already running and reachable, either through a standalone container or a local install.
 
 ```bash
@@ -103,6 +110,12 @@ uvicorn main:app --reload
 
 ### Frontend
 
+Since this project does not include a `.env.example` template, create a `.env` file inside `frontend/` yourself with the following variable before continuing.
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+```
+
 Install dependencies.
 
 ```bash
@@ -115,7 +128,7 @@ Run React.
 npm run dev
 ```
 
-Vite's dev server runs on port 5173 by default, not 3000. If you are also running the backend locally through uvicorn rather than Docker, update `FRONTEND_ORIGIN` in `backend/.env` to `http://localhost:5173` before starting the backend, otherwise the browser will block requests from the frontend due to CORS, since the backend only allows one configured origin at a time.
+Vite's dev server runs on port 5173 by default, not 3000. Since you already set `FRONTEND_ORIGIN` to `http://localhost:5173` in the backend's `.env` above, CORS will work correctly between the two.
 
 ## Troubleshooting
 
