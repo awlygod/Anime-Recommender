@@ -1,5 +1,5 @@
 /**
- * API client — wraps all calls to the backend recommendation service.
+ * API client, wraps all calls to the backend recommendation service.
  * Base URL comes from VITE_API_BASE_URL, set in .env (localhost for dev,
  * http://backend:8000 inside Docker Compose).
  */
@@ -36,5 +36,42 @@ export async function getRecommendations(params) {
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error("Failed to fetch recommendations");
+  return res.json();
+}
+
+/**
+ * Fetches every anime currently saved on the wishlist, most recent first.
+ * @returns {Promise<Array<Object>>} list of anime, each with an added_at field
+ */
+export async function getWishlist() {
+  const res = await fetch(`${BASE_URL}/wishlist`);
+  if (!res.ok) throw new Error("Failed to fetch wishlist");
+  return res.json();
+}
+
+/**
+ * Adds an anime to the wishlist.
+ * @param {number} animeId
+ * @returns {Promise<Object>} the saved wishlist entry
+ */
+export async function addToWishlist(animeId) {
+  const res = await fetch(`${BASE_URL}/wishlist`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ anime_id: animeId }),
+  });
+  if (!res.ok) throw new Error("Failed to add to wishlist");
+  return res.json();
+}
+
+/**
+ * Removes an anime from the wishlist.
+ * @param {number} animeId
+ */
+export async function removeFromWishlist(animeId) {
+  const res = await fetch(`${BASE_URL}/wishlist/${animeId}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error("Failed to remove from wishlist");
   return res.json();
 }

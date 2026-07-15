@@ -2,23 +2,27 @@ import { useState } from "react";
 import SearchBar from "../components/SearchBar";
 import PreferenceFilters from "../components/PreferenceFilters";
 import ResultsGrid from "../components/ResultsGrid";
+import AnimeDetailModal from "../components/AnimeDetailModal";
 import { getRecommendations } from "../api/client";
 
 /**
  * Main page of the application.
  *
  * It manages the user's selections, requests recommendations from the
- * backend, and displays the returned results.
+ * backend, displays the returned results, and handles opening the detail
+ * modal for any result.
  */
-export default function Home() {
+export default function Home({ onOpenWishlist }) {
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [preferences, setPreferences] = useState({ genres: [], type: "" });
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [modalAnime, setModalAnime] = useState(null);
+  const [wishlistedIds, setWishlistedIds] = useState(new Set());
+
   async function handleGetRecommendations() {
-    // Require at least one input before requesting recommendations.
     const hasNoInput =
       !selectedAnime &&
       preferences.genres.length === 0 &&
@@ -49,10 +53,25 @@ export default function Home() {
     }
   }
 
+  function handleWishlistChange(animeId, isNowWishlisted) {
+    setWishlistedIds((current) => {
+      const updated = new Set(current);
+      if (isNowWishlisted) {
+        updated.add(animeId);
+      } else {
+        updated.delete(animeId);
+      }
+      return updated;
+    });
+  }
+
   return (
     <div className="home-page">
       <div className="top-bar">
         <h1>AnimeMatch</h1>
+        <button type="button" className="btn btn-dark" onClick={onOpenWishlist}>
+          Wishlist
+        </button>
       </div>
 
       <div className="content">
@@ -95,9 +114,17 @@ export default function Home() {
           <ResultsGrid
             results={results}
             loading={loading}
+            onKnowMore={setModalAnime}
           />
         )}
       </div>
+
+      <AnimeDetailModal
+        anime={modalAnime}
+        onClose={() => setModalAnime(null)}
+        isWishlisted={modalAnime ? wishlistedIds.has(modalAnime.id) : false}
+        onWishlistChange={handleWishlistChange}
+      />
     </div>
   );
 }

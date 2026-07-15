@@ -4,6 +4,7 @@ Pydantic models used for request validation and API responses.
 These schemas define the data exchanged between the frontend and backend.
 """
 
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -57,3 +58,25 @@ class RecommendResult(AnimeOut):
     """
 
     match_score: float
+
+
+class WishlistAddRequest(BaseModel):
+    """
+    Request body for adding an anime to the wishlist.
+
+    Only the anime's id is needed, the backend looks up the rest of its
+    details from the anime table.
+    """
+
+    anime_id: int
+
+
+class WishlistItemOut(AnimeOut):
+    """
+    Response returned for each anime on the wishlist.
+
+    In addition to the anime details, this schema includes the timestamp
+    of when it was added, so the wishlist can be shown most recent first.
+    """
+
+    added_at: datetime

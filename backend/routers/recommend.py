@@ -2,11 +2,27 @@
 
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
+
 from database import get_db
-from schemas import RecommendRequest, RecommendResult
 from recommender.combined import recommend
+from schemas import RecommendRequest, RecommendResult
 
 router = APIRouter(prefix="/recommend", tags=["recommend"])
+
+
+def _to_recommend_result(anime, score: float) -> RecommendResult:
+    return RecommendResult(
+        id=anime.id,
+        name=anime.name,
+        genres=anime.genres,
+        synopsis=anime.synopsis,
+        type=anime.type,
+        episodes=anime.episodes,
+        score=anime.score,
+        popularity=anime.popularity,
+        image_url=anime.image_url,
+        match_score=round(score, 3),
+    )
 
 
 @router.post("", response_model=list[RecommendResult])
@@ -26,7 +42,4 @@ def get_recommendations(payload: RecommendRequest, request: Request, db: Session
         top_n=payload.top_n,
     )
 
-    return [
-        RecommendResult(**anime.__dict__, match_score=round(score, 3))
-        for anime, score in results
-    ]
+    return [_to_recommend_result(anime, score) for anime, score in results]

@@ -1,11 +1,11 @@
 import AnimeCard from "./AnimeCard";
 
 /**
- * Shows the actual recommendation results as a grid of cards. This one
- * component handles all three states the results area can be in, still
- * loading, no results yet, or a real list to show.
+ * Shows the actual recommendation results as a grid of cards. Passes the
+ * onKnowMore handler down to each card so clicking it opens that anime's
+ * detail modal.
  */
-export default function ResultsGrid({ results, loading }) {
+export default function ResultsGrid({ results, loading, onKnowMore }) {
   if (loading) {
     return <p className="status-text">Loading recommendations, please wait.</p>;
   }
@@ -21,7 +21,7 @@ export default function ResultsGrid({ results, loading }) {
   return (
     <div className="results-grid">
       {results.map((anime) => (
-        <AnimeCard key={anime.id} anime={anime} />
+        <AnimeCard key={anime.id} anime={anime} onKnowMore={onKnowMore} />
       ))}
     </div>
   );

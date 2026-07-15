@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database import SessionLocal
 from models import Anime
 from recommender.content_based import ContentRecommender
-from routers import anime, recommend
+from routers import anime, recommend, wishlist
 
 load_dotenv()
 
@@ -30,7 +30,7 @@ app.add_middleware(
 
 app.include_router(anime.router)
 app.include_router(recommend.router)
-
+app.include_router(wishlist.router)
 
 @app.on_event("startup")
 def build_recommender():
