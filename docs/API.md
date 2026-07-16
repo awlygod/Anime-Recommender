@@ -40,7 +40,7 @@ Query Parameters
 Example Request
 
 ```
-GET /animes?q=naruto&limit=5
+GET /animes?q=naruto&limit=10
 ```
 
 Example Response
