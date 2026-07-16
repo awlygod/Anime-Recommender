@@ -72,15 +72,27 @@ By combining these, AnimeMatch generates recommendations tailored to what you ac
 
 Once recommendations are generated, each card in the results grid shows.
 
-* The anime's poster image.
+The anime's poster image.
 
-* Its title and genres.
+Its title and genres.
 
-* Its score, or N/A if the original dataset did not have one recorded.
+Its score, or N/A if the original dataset did not have one recorded.
 
-* A match percentage, reflecting either similarity to your selected     anime or a normalized version of the anime's own score, depending on which mode produced that result.
+A match percentage, reflecting either similarity to your selected anime or a normalized version of the anime's own score, depending on which mode produced that result.
 
 You can scroll through all returned results without submitting the form again, and you can adjust your search or preferences and click Get recommendations again at any time to get a new set of results.
+
+## Viewing Full Details And Saving To Your Wishlist
+
+Click **Know More** on any anime card to open a full detail view.
+
+The modal shows the complete synopsis, along with the type, episode count, and score, none of which fit on the card itself.
+
+From inside this modal, click **Add to Wishlist** to save the anime for later. The button updates to **Remove from Wishlist**, and clicking it again removes it.
+
+The wishlist is stored in PostgreSQL, not just in your browser, so it stays saved even if you close the tab or restart the containers.
+
+Click **Wishlist** in the top bar at any time to see everything you have saved. Each entry can be removed directly from that page as well, without needing to reopen the anime's modal first.
 
 ## Testing the Backend Directly
 
@@ -92,7 +104,7 @@ Open.
 http://localhost:8000/docs
 ```
 
-Swagger UI allows you to test every API endpoint, search, recommend, and health, without using the frontend application at all. This is useful for confirming the recommendation logic is working correctly independent of the UI.
+Swagger UI allows you to test every API endpoint, search, recommend, wishlist, and health, without using the frontend application at all. This is useful for confirming the recommendation logic is working correctly independent of the UI.
 
 Full endpoint details and example requests are documented in [API.md](./docs/API.md).
 
