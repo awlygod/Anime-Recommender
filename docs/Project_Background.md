@@ -1,4 +1,4 @@
-# Project Rationale
+# Project Background
 
 ## Why I Chose This Project
 
