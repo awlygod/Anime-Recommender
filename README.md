@@ -42,6 +42,10 @@ The system is built using React for the frontend, FastAPI for the backend, and P
 
 * A combined recommendation mode that merges both techniques.
 
+* A Know More modal showing full anime details, including the complete synopsis.
+
+* Wishlist support to save and remove anime for later, backed by PostgreSQL so it persists across restarts.
+
 * Fully containerized application using Docker.
 
 * Clean, minimal, dark themed user interface.
@@ -154,7 +158,8 @@ Anime-Recommender/
 │   │   └── combined.py
 │   └── routers/
 │       ├── anime.py
-│       └── recommend.py
+│       ├── recommend.py
+│       └── wishlist.py
 └── frontend/
     ├── Dockerfile
     ├── nginx.conf
@@ -163,8 +168,14 @@ Anime-Recommender/
         ├── api/
         │   └── client.js
         ├── components/
+        │   ├── SearchBar.jsx
+        │   ├── PreferenceFilters.jsx
+        │   ├── ResultsGrid.jsx
+        │   ├── AnimeCard.jsx
+        │   └── AnimeDetailModal.jsx
         └── pages/
-            └── Home.jsx
+            ├── Home.jsx
+            └── WishlistPage.jsx
 ```
 
 ## How To Install
@@ -211,7 +222,7 @@ When Docker Compose is executed, the following happens automatically.
 
 - The PostgreSQL container starts.
 
-- The database and table are created.
+- The database and tables are created, including the anime table and the wishlist table.
 
 - The backend checks whether the database already contains data.
 
@@ -225,7 +236,7 @@ When Docker Compose is executed, the following happens automatically.
 
 A full walkthrough of the interface, what each field does, and a worked example of a recommendation request is in [USAGE.md](./USAGE.md).
 
-In short, search for an anime you like, set genre and type preferences, or do both, then click Get recommendations to see a ranked list of matching anime.
+In short, search for an anime you like, set genre and type preferences, or do both, then click Get recommendations to see a ranked list of matching anime. Click Know More on any result to see its full details, and add it to your wishlist from there.
 
 ## Recommendation Engine Architecture
 
@@ -278,6 +289,9 @@ The full request flow, end to end, looks like this.
 | GET | /animes?q=\<search\>&limit=\<number\> | Search anime by name |
 | GET | /animes/{id} | Get information about one anime |
 | POST | /recommend | Generate recommendations |
+| GET | /wishlist | Get every anime currently saved to the wishlist |
+| POST | /wishlist | Add an anime to the wishlist |
+| DELETE | /wishlist/{anime_id} | Remove an anime from the wishlist |
 | GET | /health | Check whether the backend is running |
 
 Full request and response examples for every endpoint are in [API.md](./docs/API.md).
@@ -286,7 +300,7 @@ Full request and response examples for every endpoint are in [API.md](./docs/API
 
 This project uses the Anime Dataset 2023 from Kaggle, containing around twenty five thousand anime entries with details such as title, genres, synopsis, type, episodes, score, and popularity. Before inserting the data, `seed.py` cleans missing text fields and handles the literal `UNKNOWN` placeholder values present in the score, episodes, and popularity columns.
 
-A full breakdown of every preprocessing step, and the reasoning behind each one, is in [docs/data_preparation.md](./docs/DATA_PREPARATION.md).
+A full breakdown of every preprocessing step, and the reasoning behind each one, is in [docs/DATA_PREPARATION.md](./docs/DATA_PREPARATION.md).
 
 ## Installation Files
 
@@ -317,16 +331,22 @@ Docker Compose creates the network automatically and allows the three containers
 ## Screenshots
 
 ### User Request Form
-![Request Form](screenshots/User-Form.png)
+![Request Form](screenshots/user-form.png)
 
 ### Combined Recommendations
 ![Combined](screenshots/Combined.png)
 
 ### Content Based Recommendations
-![Content-Based](screenshots/conten-based.png)
+![Content-Based](screenshots/content.png)
 
 ### Preference Based Recommendations
-![Preference Based](screenshots/Preference-based.png)
+![Preference Based](screenshots/Preference.png)
+
+### Wishlist
+![Wishlist](screenshots/wishlist.png)
+
+### Know about the Anime
+![Wishlist](screenshots/know.png)
 
 Running into an issue? Troubleshooting steps for common Docker and database problems are in [INSTALL.md](./INSTALL.md).
 
@@ -356,4 +376,4 @@ Data preprocessing: writing the fallback logic in `seed.py` that handles the lit
 
 Proofreading: Checking grammar and formatting structure of the technical docs and comments.
 
-Aside from that, the recommendation logic itself, the database schema, the React components, and the Docker network structure were built and understood by me.
+Aside from that, the recommendation logic itself, the wishlist feature, the database schema, the React components, and the Docker network structure were built and understood by me.
