@@ -368,12 +368,14 @@ The reasoning behind why this project was chosen, and what makes its approach di
 
 ## Declaration
 
-To be fully transparent, I used Claude/AI to help speed up parts of this project.
+To be fully transparent, I used Claude to help speed up parts of this project.
 
-Debugging environment issues: diagnosing a `.gitignore` encoding problem on Windows that was silently preventing `.env` from being ignored, and working through a CORS mismatch caused by Vite's default dev port differing from the Docker port.
+Approximate LLM Assistance:
 
-Data preprocessing: writing the fallback logic in `seed.py` that handles the literal `UNKNOWN` values present in the Kaggle dataset's score, episodes, and popularity fields, so they don't break the seeding process or the recommendation engine.
+* Frontend Development: ~ 50%
 
-Proofreading: Checking grammar and formatting structure of the technical docs and comments.
+* Backend Development: ~30%
 
-Aside from that, the recommendation logic itself, the wishlist feature, the database schema, the React components, and the Docker network structure were built and understood by me.
+* Docker Configuration: ~35%
+
+The LLM was primarily used for debugging, resolving implementation issues, and minor development assistance. The overall project architecture, application logic, recommendation system, integration, and final implementation were completed and verified by me.
