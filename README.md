@@ -331,7 +331,7 @@ Docker Compose creates the network automatically and allows the three containers
 ## Screenshots
 
 ### User Request Form
-![Request Form](screenshots/user-form.png)
+![Request Form](screenshots/User-form.png)
 
 ### Combined Recommendations
 ![Combined](screenshots/Combined.png)
